@@ -1,0 +1,68 @@
+# =========================
+# OS / Editor Junk Files
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.iml
+*.lnk
+*~
+
+# =========================
+# Environment Files
+# =========================
+.env*
+.vagrant
+Vagrantfile
+.php-version
+
+# =========================
+# CodeIgniter Writable
+# =========================
+/writable/*
+!/writable/.htaccess
+!/writable/index.html
+
+# =========================
+# Uploads & Media (Streaming)
+# =========================
+/public/uploads/
+/public/videos/
+/public/hls/
+
+# =========================
+# Composer / Node
+# =========================
+/vendor/
+/node_modules/
+
+# =========================
+# Logs & Temp
+# =========================
+*.log
+php_errors.log
+/results/
+/phpunit*.xml
+phpunit
+tests/coverage*
+
+# =========================
+# IDE / Build Tools
+# =========================
+/nbproject/
+/build/
+/dist/
+/nbdist/
+/nbactions.xml
+/nb-configuration.xml
+/.nb-gradle/
+
+# =========================
+# User Guide (CI)
+# =========================
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
