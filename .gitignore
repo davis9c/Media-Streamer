@@ -1,14 +1,4 @@
-# =========================
-# OS / Editor Junk Files
-# =========================
-.DS_Store
-Thumbs.db
-Desktop.ini
-.idea/
-.vscode/
-*.iml
-*.lnk
-*~
+
 
 # =========================
 # Environment Files
@@ -37,25 +27,3 @@ Vagrantfile
 # =========================
 #/vendor/
 #/node_modules/
-
-# =========================
-# Logs & Temp
-# =========================
-*.log
-php_errors.log
-/results/
-/phpunit*.xml
-phpunit
-tests/coverage*
-
-# =========================
-# IDE / Build Tools
-# =========================
-/nbproject/
-/build/
-/dist/
-/nbdist/
-/nbactions.xml
-/nb-configuration.xml
-/.nb-gradle/
-
