@@ -144,3 +144,46 @@ MIT License
 
 Pull Request & Issue sangat diterima 🙌
 Silakan fork repository ini dan buat perubahan yang Anda inginkan.
+## Troubleshooting
+
+### Masalah Umum dan Solusi
+
+#### 1. Database Connection Error
+**Penyebab:**
+- Database `streaming_db_live` belum dibuat
+- Username/password database tidak sesuai
+- MySQL server tidak berjalan
+
+**Solusi:**
+```bash
+# Pastikan MySQL berjalan
+sudo service mysql start
+
+# Buat database
+mysql -u root -p -e "CREATE DATABASE streaming_db_live;"
+```
+
+#### 2. Encryption Key Not Set
+**Penyebab:**
+- `encryption.key` tidak dikonfigurasi di `.env`
+
+**Solusi:**
+Uncomment dan generate encryption key:
+```bash
+php spark key:generate
+```
+
+#### 3. Permission Denied on Writable Directory
+**Penyebab:**
+- Folder `writable/` tidak memiliki izin tulis
+
+**Solusi:**
+```bash
+chmod -R 755 writable/
+```
+
+#### 4. Port 8081 Already in Use
+**Solusi:**
+```bash
+php spark serve --port 8000
+```
