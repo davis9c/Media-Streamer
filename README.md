@@ -187,3 +187,6 @@ chmod -R 755 writable/
 ```bash
 php spark serve --port 8000
 ```
+
+jika gagal spark dan menghasilkan output "", lakukan langkah berikut:
+mkdir -p /home/cx/Media-Streamer/writable/{cache,logs,session,uploads} && chmod -R 777 /home/cx/Media-Streamer/writable
