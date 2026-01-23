@@ -1,0 +1,32 @@
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+
+# =========================
+# CodeIgniter Writable
+# =========================
+/writable/*
+!/writable/.htaccess
+!/writable/index.html
+
+# =========================
+# User Uploads / Streaming
+# =========================
+/public/uploads/
+/public/videos/
+/public/hls/
+
+# =========================
+# Composer
+# =========================
+/vendor/
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
