@@ -1,5 +1,5 @@
 <div class="col-12 col-xl-4">
-    <div class="card admin-card">
+    <div class="card shadow-sm">
         <div class="card-header bg-white py-3">
             <h2 class="h6 mb-0 fw-semibold">
                 <i class="bi bi-plus-circle me-2 text-primary"></i>Form Playlist
@@ -19,7 +19,7 @@
                     <span class="small text-body-secondary">Urutan sesuai klik</span>
                 </div>
 
-                <div id="videoList" class="video-picker border rounded p-2 mb-3">
+                <div id="videoList" class="overflow-auto border rounded p-2 mb-3" style="max-height: 320px;">
                     <?php if (empty($videos)): ?>
                         <p class="text-body-secondary small mb-1">Belum ada video. Upload video terlebih dahulu.</p>
                     <?php endif; ?>

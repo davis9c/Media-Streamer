@@ -24,7 +24,7 @@
 
 <div class="row g-3 mb-4">
     <div class="col-12 col-sm-6 col-xl-4">
-        <div class="card admin-card border-start border-4 border-primary h-100">
+        <div class="card shadow-sm border-start border-4 border-primary h-100">
             <div class="card-body">
                 <div class="text-uppercase small fw-semibold text-primary mb-1">Total Views</div>
                 <div class="display-6 fw-bold text-body"><?= (int) $totalViews ?></div>

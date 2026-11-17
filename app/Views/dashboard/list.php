@@ -1,5 +1,5 @@
 <div class="col-12 col-xl-6">
-    <div class="card admin-card h-100">
+    <div class="card shadow-sm h-100">
         <div class="card-header bg-white py-3">
             <h2 class="h6 mb-0 fw-semibold">
                 <i class="bi bi-bar-chart-line me-2 text-primary"></i>Top Video
@@ -36,7 +36,7 @@
 </div>
 
 <div class="col-12 col-xl-6">
-    <div class="card admin-card h-100">
+    <div class="card shadow-sm h-100">
         <div class="card-header bg-white py-3">
             <h2 class="h6 mb-0 fw-semibold">
                 <i class="bi bi-collection-play me-2 text-primary"></i>View per Playlist

@@ -11,32 +11,22 @@
     <link href="<?= base_url('assets/vendor/bootstrap/5.3.9/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/bootstrap-icons/1.13.2/bootstrap-icons.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/vendor/datatables/2.3.8/dataTables.bootstrap5.min.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
 </head>
 
-<body class="admin-body">
-    <!-- Sidebar -->
-    <div class="offcanvas-lg offcanvas-start admin-sidebar" tabindex="-1" id="adminSidebar"
-        aria-labelledby="adminSidebarLabel">
-        <?= $this->include('partial/sidebar') ?>
-    </div>
-    <!-- End of Sidebar -->
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+    <!-- Topbar -->
+    <?= $this->include('partial/topbar') ?>
+    <!-- End of Topbar -->
 
-    <div class="admin-main d-flex flex-column min-vh-100">
-        <!-- Topbar -->
-        <?= $this->include('partial/topbar') ?>
-        <!-- End of Topbar -->
+    <!-- Main Content -->
+    <main class="container-fluid py-4 flex-grow-1">
+        <?= $this->renderSection('content') ?>
+    </main>
+    <!-- End of Main Content -->
 
-        <!-- Main Content -->
-        <main class="container-fluid px-3 px-lg-4 py-4 flex-grow-1">
-            <?= $this->renderSection('content') ?>
-        </main>
-        <!-- End of Main Content -->
-
-        <!-- Footer -->
-        <?= $this->include('partial/footer') ?>
-        <!-- End of Footer -->
-    </div>
+    <!-- Footer -->
+    <?= $this->include('partial/footer') ?>
+    <!-- End of Footer -->
 
     <!-- Logout Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">

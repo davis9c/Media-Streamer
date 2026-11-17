@@ -1,5 +1,5 @@
 <div class="col-12 col-xl-4">
-    <div class="card admin-card">
+    <div class="card shadow-sm">
         <div class="card-header bg-white py-3">
             <h2 class="h6 mb-0 fw-semibold">
                 <i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Upload Video

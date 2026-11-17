@@ -70,23 +70,5 @@
                 window.playVideo(target.getAttribute('data-filename'));
             }
         });
-
-        // Tutup sidebar offcanvas setelah menu diklik pada layar kecil.
-        var sidebar = document.getElementById('adminSidebar');
-
-        if (sidebar && window.bootstrap && window.bootstrap.Offcanvas) {
-            var isSmallScreen = window.matchMedia('(max-width: 991.98px)').matches;
-
-            if (isSmallScreen) {
-                var links = sidebar.querySelectorAll('a.nav-link');
-                var offcanvas = window.bootstrap.Offcanvas.getOrCreateInstance(sidebar);
-
-                for (var i = 0; i < links.length; i++) {
-                    links[i].addEventListener('click', function () {
-                        offcanvas.hide();
-                    });
-                }
-            }
-        }
     });
 })();

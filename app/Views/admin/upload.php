@@ -1,6 +1,6 @@
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
-        <div class="card admin-card">
+        <div class="card shadow-sm">
             <div class="card-header bg-white py-3">
                 <h1 class="h6 mb-0 fw-semibold">
                     <i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Upload Video
