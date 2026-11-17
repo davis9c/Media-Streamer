@@ -248,6 +248,85 @@ class Video extends BaseController
     }
 
     /**
+     * Server-side DataTables untuk daftar video admin.
+     */
+    public function dataTable()
+    {
+        $draw   = (int) ($this->request->getGet('draw') ?? 0);
+        $start  = max(0, (int) ($this->request->getGet('start') ?? 0));
+        $length = (int) ($this->request->getGet('length') ?? 10);
+
+        if (! in_array($length, [10, 25, 50, 100, -1], true)) {
+            $length = 10;
+        }
+
+        $searchParam = $this->request->getGet('search');
+        $search      = trim((string) (is_array($searchParam) ? ($searchParam['value'] ?? '') : ''));
+
+        $orderParam  = $this->request->getGet('order');
+        $orderColumn = 1;
+        $orderDir    = 'asc';
+
+        if (is_array($orderParam) && isset($orderParam[0])) {
+            $orderColumn = (int) ($orderParam[0]['column'] ?? 1);
+            $orderDir    = strtolower((string) ($orderParam[0]['dir'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
+        }
+
+        // Hanya kolom ini yang boleh dipakai untuk sorting.
+        $orderMap = [
+            1 => 'title',
+            2 => 'created_at',
+        ];
+        $orderBy = $orderMap[$orderColumn] ?? 'id';
+
+        $db    = \Config\Database::connect();
+        $total = $db->table('videos')->countAllResults();
+
+        $builder = $db->table('videos');
+
+        if ($search !== '') {
+            $builder->like('title', $search);
+        }
+
+        $filtered = $builder->countAllResults(false);
+
+        $builder->orderBy($orderBy, strtoupper($orderDir));
+
+        if ($length !== -1) {
+            $builder->limit($length, $start);
+        }
+
+        $rows = $builder->get()->getResultArray();
+        $data = [];
+
+        foreach ($rows as $i => $video) {
+            $filename = (string) $video['filename'];
+
+            $action = '<button type="button" class="btn btn-sm btn-primary js-play-video me-1"'
+                . ' data-filename="' . esc($filename, 'attr') . '">'
+                . '<i class="bi bi-play-fill"></i> View</button>'
+                . '<a href="' . esc(base_url('video/delete/' . $video['id'])) . '"'
+                . ' class="btn btn-sm btn-danger"'
+                . ' onclick="return confirm(\'Hapus video dan semua relasinya?\')">'
+                . '<i class="bi bi-trash"></i> Hapus</a>';
+
+            $data[] = [
+                'no'         => $start + $i + 1,
+                'name'       => esc((string) $video['title']),
+                'created_at' => esc((string) $video['created_at']),
+                'action'     => $action,
+            ];
+        }
+
+        return $this->response->setJSON([
+            'draw'            => $draw,
+            'recordsTotal'    => $total,
+            'recordsFiltered' => $filtered,
+            'data'            => $data,
+        ]);
+    }
+
+    /**
      * Tambahkan URL HLS absolut bila tersedia.
      */
     protected function withHlsUrl(array $video): array

@@ -101,6 +101,80 @@ class Playlist extends BaseController
     }
 
 
+    /**
+     * Server-side DataTables untuk daftar playlist admin.
+     */
+    public function dataTable()
+    {
+        $draw   = (int) ($this->request->getGet('draw') ?? 0);
+        $start  = max(0, (int) ($this->request->getGet('start') ?? 0));
+        $length = (int) ($this->request->getGet('length') ?? 10);
+
+        if (! in_array($length, [10, 25, 50, 100, -1], true)) {
+            $length = 10;
+        }
+
+        $searchParam = $this->request->getGet('search');
+        $search      = trim((string) (is_array($searchParam) ? ($searchParam['value'] ?? '') : ''));
+
+        $orderParam  = $this->request->getGet('order');
+        $orderColumn = 1;
+        $orderDir    = 'asc';
+
+        if (is_array($orderParam) && isset($orderParam[0])) {
+            $orderColumn = (int) ($orderParam[0]['column'] ?? 1);
+            $orderDir    = strtolower((string) ($orderParam[0]['dir'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
+        }
+
+        // Hanya kolom ini yang boleh dipakai untuk sorting.
+        $orderMap = [
+            1 => 'playlistname',
+            2 => 'created_at',
+        ];
+        $orderBy = $orderMap[$orderColumn] ?? 'id';
+
+        $db    = \Config\Database::connect();
+        $total = $db->table('playlist')->countAllResults();
+
+        $builder = $db->table('playlist');
+
+        if ($search !== '') {
+            $builder->like('playlistname', $search);
+        }
+
+        $filtered = $builder->countAllResults(false);
+
+        $builder->orderBy($orderBy, strtoupper($orderDir));
+
+        if ($length !== -1) {
+            $builder->limit($length, $start);
+        }
+
+        $rows = $builder->get()->getResultArray();
+        $data = [];
+
+        foreach ($rows as $i => $playlist) {
+            $action = '<a href="' . esc(base_url('playlist/delete/' . $playlist['id'])) . '"'
+                . ' class="btn btn-sm btn-danger"'
+                . ' onclick="return confirm(\'Hapus playlist ini?\')">'
+                . '<i class="bi bi-trash"></i> Hapus</a>';
+
+            $data[] = [
+                'no'         => $start + $i + 1,
+                'name'       => esc((string) $playlist['playlistname']),
+                'created_at' => esc((string) $playlist['created_at']),
+                'action'     => $action,
+            ];
+        }
+
+        return $this->response->setJSON([
+            'draw'            => $draw,
+            'recordsTotal'    => $total,
+            'recordsFiltered' => $filtered,
+            'data'            => $data,
+        ]);
+    }
+
     // =====================================
     // 🗑️ DELETE PLAYLIST (ADMIN ONLY)
     // =====================================

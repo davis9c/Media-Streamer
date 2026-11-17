@@ -1,196 +1,335 @@
+<?php
+$count    = count($videos);
+$mp4Base  = base_url('video/stream/');
+$controls = (bool) (service('request')->getGet('controls') ?? false);
+
+$cols = max(1, (int) ceil(sqrt(max(1, $count))));
+$rows = max(1, (int) ceil($count / $cols));
+
+// Video pertama dibuat lebih besar (2x2) bila jumlahnya ganjil.
+$hasMain = $count > 1 && $count % 2 === 1;
+
+if ($hasMain) {
+    $cols = max(2, (int) ceil(sqrt($count + 3)));
+    $rows = max(2, (int) ceil(($count + 3) / $cols));
+}
+
+$cells = [];
+$skip  = [];
+$next  = 0;
+
+if ($hasMain) {
+    $cells['0,0'] = 0;
+    $skip['0,1']  = true;
+    $skip['1,0']  = true;
+    $skip['1,1']  = true;
+    $next         = 1;
+}
+
+for ($r = 0; $r < $rows; $r++) {
+    for ($c = 0; $c < $cols; $c++) {
+        $key = $r . ',' . $c;
+
+        if (isset($cells[$key]) || isset($skip[$key])) {
+            continue;
+        }
+
+        if ($next < $count) {
+            $cells[$key] = $next;
+            $next++;
+        }
+    }
+}
+
+$renderVideo = static function (array $video, bool $showControls) use ($mp4Base): string {
+    $mp4 = $mp4Base . (string) $video['filename'];
+    $hls = (string) ($video['hls_url'] ?? '');
+    $html = '<video class="stream-video" autoplay muted loop playsinline webkit-playsinline'
+        . ' preload="auto" data-mp4="' . esc($mp4) . '"'
+        . ($showControls ? ' controls' : '')
+        . ' onclick="activateAudio(this)">';
+
+    if ($hls !== '') {
+        $html .= '<source src="' . esc($hls) . '" type="application/vnd.apple.mpegurl">';
+    }
+
+    $html .= '<source src="' . esc($mp4) . '" type="video/mp4">';
+    $html .= 'Browser ini tidak mendukung pemutaran video.';
+    $html .= '</video>';
+
+    return $html;
+};
+?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($playlist['playlistname']) ?></title>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #streamScreen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .stream-grid {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .stream-grid td {
+            padding: 1px;
+            vertical-align: middle;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .empty-cell {
+            background: #000;
+        }
+
+        .stream-video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            background: #000;
+            object-fit: cover;
+            -o-object-fit: cover;
+        }
+
+        .stream-empty {
+            display: table;
+            width: 100%;
+            height: 100%;
+            color: #d1d5db;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .stream-empty span {
+            display: table-cell;
+            vertical-align: middle;
+            padding: 20px;
+        }
+
+        .stream-hint {
+            position: fixed;
+            left: 50%;
+            bottom: 14px;
+            z-index: 20;
+            max-width: 92%;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.72);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
+        .stream-controls {
+            position: fixed;
+            right: 14px;
+            bottom: 14px;
+            z-index: 21;
+        }
+
+        .stream-button {
+            display: inline-block;
+            min-height: 44px;
+            margin-left: 8px;
+            padding: 10px 16px;
+            border: 1px solid #fff;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.72);
+            color: #fff;
+            font-size: 15px;
+            line-height: 20px;
+            cursor: pointer;
+        }
+
+        .stream-button:hover,
+        .stream-button:focus {
+            background: #fff;
+            color: #000;
+            outline: 2px solid #ffd54f;
+            outline-offset: 2px;
+        }
+    </style>
 </head>
 
-<body style="margin:0;background:black;">
+<body>
+    <div id="streamScreen">
+        <?php if ($count === 0): ?>
+            <div class="stream-empty"><span>Playlist ini belum memiliki video.</span></div>
+        <?php else: ?>
+            <table class="stream-grid">
+                <tbody>
+                    <?php for ($r = 0; $r < $rows; $r++): ?>
+                        <tr>
+                            <?php for ($c = 0; $c < $cols; $c++): ?>
+                                <?php $key = $r . ',' . $c; ?>
 
-    <div id="videoContainer"
-        style="width:100vw;height:100vh;display:grid;gap:2px;background:black;">
+                                <?php if (isset($skip[$key])): ?>
+                                    <?php continue; ?>
+                                <?php endif; ?>
+
+                                <?php if (isset($cells[$key])): ?>
+                                    <?php
+                                    $index   = $cells[$key];
+                                    $video   = $videos[$index];
+                                    $isMain  = $hasMain && $r === 0 && $c === 0;
+                                    ?>
+                                    <td<?= $isMain ? ' colspan="2" rowspan="2"' : '' ?>>
+                                        <?= $renderVideo($video, $controls || $index === 0) ?>
+                                    </td>
+                                <?php else: ?>
+                                    <td class="empty-cell"></td>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endfor; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
-    <div id="emptyState"
-        style="display:none;width:100vw;height:100vh;align-items:center;justify-content:center;color:#bbb;font-family:Arial,sans-serif;font-size:18px;">
-        Playlist ini belum memiliki video.
+    <div id="audioHint" class="stream-hint">
+        Klik video atau tombol Suara untuk mengaktifkan audio.
     </div>
 
-    <div id="hint"
-        style="
-        position:fixed;
-        bottom:10px;
-        left:50%;
-        transform:translateX(-50%);
-        background:rgba(0,0,0,.6);
-        color:white;
-        padding:8px 14px;
-        font-size:14px;
-        cursor:pointer;
-        z-index:10;">
-        Klik layar untuk aktifkan suara
+    <div class="stream-controls">
+        <button type="button" class="stream-button" onclick="activateSound()">Suara</button>
+        <button type="button" class="stream-button" onclick="toggleFullscreen()">Layar Penuh</button>
     </div>
 
-    <script src="<?= base_url('assets/hls/hls.min.js') ?>"></script>
     <script>
-        const videos = <?= json_encode($videos, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
-        const mp4Base = <?= json_encode(base_url('video/stream/')) ?>;
+        (function () {
+            'use strict';
 
-        const container = document.getElementById('videoContainer');
-        const hint = document.getElementById('hint');
-        const emptyState = document.getElementById('emptyState');
+            var videos = document.getElementsByTagName('video');
+            var hint = document.getElementById('audioHint');
 
-        let videoElements = [];
-        let interactionDone = false;
-
-        const count = videos.length;
-
-        // Guard playlist kosong
-        if (count === 0) {
-            container.style.display = 'none';
-            hint.style.display = 'none';
-            emptyState.style.display = 'flex';
-        } else {
-            let cols = Math.ceil(Math.sqrt(count));
-            let rows = Math.ceil(count / cols);
-
-            // Video utama menempati 2x2, jadi butuh area tambahan 3 sel.
-            const isOdd = count % 2 === 1 && count > 1;
-            if (isOdd) {
-                cols = Math.ceil(Math.sqrt(count + 3));
-                rows = Math.ceil((count + 3) / cols);
-            }
-
-            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-
-            initVideos(isOdd);
-        }
-
-        function initVideos(isOdd) {
-            videos.forEach((video, index) => {
-
-                // WRAPPER
-                const wrap = document.createElement('div');
-                wrap.style.position = 'relative';
-                wrap.style.width = '100%';
-                wrap.style.height = '100%';
-                wrap.style.background = 'black';
-
-                // LOADING
-                const loader = document.createElement('div');
-                loader.innerHTML = '&#9203;';
-                loader.style.position = 'absolute';
-                loader.style.top = '50%';
-                loader.style.left = '50%';
-                loader.style.transform = 'translate(-50%, -50%)';
-                loader.style.fontSize = '32px';
-                loader.style.color = 'white';
-                loader.style.zIndex = '2';
-
-                // VIDEO
-                const v = document.createElement('video');
-                v.autoplay = true;
-                v.loop = true;
-                v.muted = true;
-                v.playsInline = true;
-                v.controls = false;
-
-                v.style.width = '100%';
-                v.style.height = '100%';
-                v.style.objectFit = 'cover';
-                v.style.cursor = 'pointer';
-
-                // VIDEO UTAMA (GANJIL)
-                if (isOdd && index === 0) {
-                    wrap.style.gridColumn = 'span 2';
-                    wrap.style.gridRow = 'span 2';
-                    v.dataset.main = '1';
-
-                    v.addEventListener('playing', () => {
-                        setTimeout(initInteraction, 500);
-                    });
+            function activateAudio(activeVideo) {
+                for (var i = 0; i < videos.length; i++) {
+                    videos[i].muted = true;
                 }
 
-                // SUMBER: HLS bila ada, fallback MP4
-                attachSource(v, video);
+                if (activeVideo) {
+                    activeVideo.muted = false;
 
-                // VIDEO EVENTS
-                v.addEventListener('loadstart', () => loader.style.display = 'block');
-                v.addEventListener('waiting', () => loader.style.display = 'block');
-                v.addEventListener('canplay', () => loader.style.display = 'none');
-                v.addEventListener('playing', () => loader.style.display = 'none');
+                    try {
+                        activeVideo.volume = 1;
+                    } catch (error) {
+                        // Volume tidak didukung pada sebagian perangkat.
+                    }
+                }
 
-                // AUDIO CONTROL MANUAL
-                v.onclick = () => activateAudio(v);
+                if (hint) {
+                    hint.style.display = 'none';
+                }
+            }
 
-                wrap.appendChild(v);
-                wrap.appendChild(loader);
-                container.appendChild(wrap);
+            function activateSound() {
+                if (videos.length > 0) {
+                    activateAudio(videos[0]);
+                }
+            }
 
-                videoElements.push(v);
-            });
-        }
+            function fallbackToMp4(videoElement) {
+                if (!videoElement || videoElement.getAttribute('data-fallback') === '1') {
+                    return;
+                }
 
-        function attachSource(videoElement, video) {
-            const playAttempt = () => videoElement.play().catch(() => {});
+                var mp4 = videoElement.getAttribute('data-mp4');
 
-            if (video.hls_url) {
-                if (window.Hls && window.Hls.isSupported()) {
-                    const hls = new Hls({ maxBufferLength: 30 });
-                    hls.loadSource(video.hls_url);
-                    hls.attachMedia(videoElement);
-                    hls.on(Hls.Events.MANIFEST_PARSED, playAttempt);
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        if (data && data.fatal) {
-                            // Fallback ke MP4 bila HLS gagal.
-                            hls.destroy();
-                            videoElement.src = mp4Base + video.filename;
-                            playAttempt();
-                        }
-                    });
-                    videoElement._hls = hls;
+                if (!mp4) {
+                    return;
+                }
+
+                videoElement.setAttribute('data-fallback', '1');
+                videoElement.src = mp4;
+
+                if (videoElement.load) {
+                    videoElement.load();
+                }
+
+                if (videoElement.play) {
+                    try {
+                        videoElement.play();
+                    } catch (error) {
+                        // Autoplay bisa diblokir, video tetap bisa diputar manual.
+                    }
+                }
+            }
+
+            function toggleFullscreen() {
+                var screenElement = document.getElementById('streamScreen');
+                var fullscreenElement = document.fullscreenElement
+                    || document.webkitFullscreenElement
+                    || document.msFullscreenElement;
+
+                if (fullscreenElement) {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
 
                     return;
                 }
 
-                // Safari/iOS mendukung HLS secara native.
-                videoElement.src = video.hls_url;
-
-                return;
+                if (screenElement.requestFullscreen) {
+                    screenElement.requestFullscreen();
+                } else if (screenElement.webkitRequestFullscreen) {
+                    screenElement.webkitRequestFullscreen();
+                } else if (screenElement.msRequestFullscreen) {
+                    screenElement.msRequestFullscreen();
+                } else if (videos.length > 0 && videos[0].webkitEnterFullscreen) {
+                    // Fallback untuk browser TV lama.
+                    videos[0].webkitEnterFullscreen();
+                }
             }
 
-            videoElement.src = mp4Base + video.filename;
-        }
+            window.activateAudio = activateAudio;
+            window.activateSound = activateSound;
+            window.toggleFullscreen = toggleFullscreen;
 
-        // AUDIO HANDLER
-        function activateAudio(activeVideo) {
-            videoElements.forEach(v => v.muted = true);
-            activeVideo.muted = false;
-            activeVideo.volume = 1;
-            hint.style.display = 'none';
-        }
-
-        // FULLSCREEN & AUDIO INIT (SAFE)
-        function initInteraction() {
-            if (interactionDone) return;
-            interactionDone = true;
-
-            if (container.requestFullscreen) {
-                container.requestFullscreen().catch(() => {});
+            for (var i = 0; i < videos.length; i++) {
+                (function (videoElement) {
+                    if (videoElement.addEventListener) {
+                        videoElement.addEventListener('error', function () {
+                            fallbackToMp4(videoElement);
+                        }, false);
+                    } else if (videoElement.attachEvent) {
+                        videoElement.attachEvent('onerror', function () {
+                            fallbackToMp4(videoElement);
+                        });
+                    }
+                })(videos[i]);
             }
-
-            if (videoElements.length > 0) {
-                activateAudio(videoElements[0]);
-            }
-        }
-
-        // FALLBACK USER INTERACTION
-        document.addEventListener('click', initInteraction, { once: true });
-        document.addEventListener('touchstart', initInteraction, { once: true });
-        document.addEventListener('keydown', initInteraction, { once: true });
+        })();
     </script>
-
 </body>
 
 </html>

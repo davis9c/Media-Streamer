@@ -1,44 +1,32 @@
-<!-- Topbar -->
-<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-    <!-- Sidebar Toggle (Topbar) -->
-    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-        <i class="fa fa-bars"></i>
+<nav class="navbar navbar-expand admin-topbar bg-white border-bottom sticky-top px-3 px-lg-4">
+    <button class="btn btn-outline-secondary d-lg-none me-2" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-label="Buka menu">
+        <i class="bi bi-list"></i>
     </button>
 
-    <!-- Topbar Navbar -->
-    <ul class="navbar-nav ml-auto">
+    <span class="navbar-brand mb-0 h6 d-lg-none">Admin</span>
 
-        <div class="topbar-divider d-none d-sm-block"></div>
+    <div class="ms-auto">
+        <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button"
+                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="admin-avatar"><i class="bi bi-person-fill"></i></span>
+                <span class="d-none d-sm-inline small fw-semibold"><?= esc(session()->get('name') ?? 'Admin') ?></span>
+            </button>
 
-        <!-- Nav Item - User Information -->
-        <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= session()->get('name') ?></span>
-                <img class="img-profile rounded-circle"
-                    src="<?= base_url('sb2/img/undraw_profile.svg') ?>">
-            </a>
-            <!-- Dropdown - User Information -->
-            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="#">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Profil
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Pengaturan
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Logout
-                </a>
-            </div>
-        </li>
-
-    </ul>
-
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Pengaturan</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <button class="dropdown-item text-danger" type="button" data-bs-toggle="modal"
+                        data-bs-target="#logoutModal">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
 </nav>
-<!-- End of Topbar -->

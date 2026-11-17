@@ -1,73 +1,82 @@
-<div class="col-lg-4">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                Form Video
-            </h6>
+<div class="col-12 col-xl-4">
+    <div class="card admin-card">
+        <div class="card-header bg-white py-3">
+            <h2 class="h6 mb-0 fw-semibold">
+                <i class="bi bi-plus-circle me-2 text-primary"></i>Form Playlist
+            </h2>
         </div>
 
         <div class="card-body">
-
-            <?php if (session()->getFlashdata('success')): ?>
-                <p style="color:green"><?= session()->getFlashdata('success') ?></p>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('error')): ?>
-                <p style="color:red"><?= session()->getFlashdata('error') ?></p>
-            <?php endif; ?>
-
             <form action="<?= base_url('playlist/store') ?>" method="post">
+                <div class="mb-3">
+                    <label for="playlistname" class="form-label">Nama Playlist</label>
+                    <input type="text" class="form-control" id="playlistname" name="playlistname"
+                        placeholder="Contoh: Playlist Edukasi" required>
+                </div>
 
-                <label>Nama Playlist</label><br>
-                <input type="text" name="playlistname" required>
-                <hr>
+                <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <h3 class="h6 mb-0">Pilih Video</h3>
+                    <span class="small text-body-secondary">Urutan sesuai klik</span>
+                </div>
 
-                <h3>Pilih Video (Urutan sesuai klik)</h3>
+                <div id="videoList" class="video-picker border rounded p-2 mb-3">
+                    <?php if (empty($videos)): ?>
+                        <p class="text-body-secondary small mb-1">Belum ada video. Upload video terlebih dahulu.</p>
+                    <?php endif; ?>
 
-                <div id="videoList">
                     <?php foreach ($videos as $video): ?>
-                        <label style="display:block; cursor:pointer;">
-                            <input type="checkbox"
-                                value="<?= $video['id'] ?>"
-                                onchange="handleCheck(this)"><?= $video['id'] ?>.
-                            <?= esc($video['title']) ?>
-                            <span class="order"></span>
-                        </label>
+                        <div class="form-check py-1">
+                            <input class="form-check-input playlist-video-check" type="checkbox"
+                                value="<?= (int) $video['id'] ?>" id="video-<?= (int) $video['id'] ?>"
+                                onchange="handleCheck(this)">
+                            <label class="form-check-label d-block" for="video-<?= (int) $video['id'] ?>">
+                                <?= (int) $video['id'] ?>. <?= esc($video['title']) ?>
+                                <span class="order text-primary fw-semibold"></span>
+                            </label>
+                        </div>
                     <?php endforeach; ?>
                 </div>
 
                 <input type="hidden" name="videos_order" id="videos_order">
-                <script>
-                    let selectedVideos = [];
 
-                    function handleCheck(checkbox) {
-                        const id = checkbox.value;
-
-                        if (checkbox.checked) {
-                            selectedVideos.push(id);
-                        } else {
-                            selectedVideos = selectedVideos.filter(v => v !== id);
-                        }
-
-                        updateOrderUI();
-                        document.getElementById('videos_order').value = selectedVideos.join(',');
-                    }
-
-                    function updateOrderUI() {
-                        document.querySelectorAll('#videoList label').forEach(label => {
-                            const checkbox = label.querySelector('input');
-                            const span = label.querySelector('.order');
-                            const index = selectedVideos.indexOf(checkbox.value);
-
-                            span.textContent = index !== -1 ? ` (Urutan ${index + 1})` : '';
-                        });
-                    }
-                </script>
-
-
-                <br>
-                <button type="submit">Simpan Playlist</button>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-save me-1"></i>Simpan Playlist
+                </button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    var selectedVideos = [];
+
+    function handleCheck(checkbox) {
+        var id = checkbox.value;
+        var index = selectedVideos.indexOf(id);
+
+        if (checkbox.checked) {
+            if (index === -1) {
+                selectedVideos.push(id);
+            }
+        } else if (index !== -1) {
+            selectedVideos.splice(index, 1);
+        }
+
+        updateOrderUI();
+        document.getElementById('videos_order').value = selectedVideos.join(',');
+    }
+
+    function updateOrderUI() {
+        var checkboxes = document.querySelectorAll('#videoList .playlist-video-check');
+
+        for (var i = 0; i < checkboxes.length; i++) {
+            var checkbox = checkboxes[i];
+            var label = checkbox.parentNode.querySelector('.order');
+            var index = selectedVideos.indexOf(checkbox.value);
+
+            if (label) {
+                label.textContent = index !== -1 ? '(Urutan ' + (index + 1) + ')' : '';
+            }
+        }
+    }
+</script>

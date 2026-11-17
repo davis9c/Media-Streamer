@@ -1,40 +1,23 @@
-<div class="col-lg-8">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Daftar Video</h6>
+<div class="col-12 col-xl-8">
+    <div class="card admin-card">
+        <div class="card-header bg-white py-3">
+            <h2 class="h6 mb-0 fw-semibold">
+                <i class="bi bi-camera-video me-2 text-primary"></i>Daftar Video
+            </h2>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <br>
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
+                <table class="table table-striped table-hover align-middle w-100" id="videoTable"
+                    data-url="<?= base_url('video/datatable') ?>">
+                    <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Subject</th>
-                            <th>Action</th>
+                            <th scope="col" class="text-center" style="width: 70px;">No</th>
+                            <th scope="col">Judul</th>
+                            <th scope="col">Tanggal</th>
+                            <th scope="col" style="width: 200px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach ($videos as $i => $video): ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><?= esc($video['title']) ?></td>
-                                <td><?= esc($video['created_at']) ?></td>
-                                <td>
-                                    <button onclick="playVideo('<?= esc($video['filename']) ?>')">
-                                        View
-                                    </button>
-                                    <a href="/video/delete/<?= $video['id'] ?>"
-                                        onclick="return confirm('Hapus video dan semua relasinya?')">
-                                        🗑 Hapus
-                                    </a>
-
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>

@@ -1,32 +1,40 @@
 <?= $this->extend('layout/dashboard') ?>
 <?= $this->section('content') ?>
 
-<div class="container-fluid">
-
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Dashboard</h1>
+        <p class="text-body-secondary mb-0">Ringkasan statistik streaming.</p>
     </div>
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success'); ?></div>
-    <?php endif; ?>
+</div>
 
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                        Total Views
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?= (int) $totalViews ?></div>
-                </div>
+<?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?= esc(session()->getFlashdata('success')) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?= esc(session()->getFlashdata('error')) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+<?php endif; ?>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-4">
+        <div class="card admin-card border-start border-4 border-primary h-100">
+            <div class="card-body">
+                <div class="text-uppercase small fw-semibold text-primary mb-1">Total Views</div>
+                <div class="display-6 fw-bold text-body"><?= (int) $totalViews ?></div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row">
-
-        <?= $this->include('dashboard/list') ?>
-    </div>
+<div class="row g-4">
+    <?= $this->include('dashboard/list') ?>
 </div>
 
 <?= $this->endSection() ?>

@@ -15,6 +15,7 @@ $routes->get('/stream/(:any)', 'Stream::play/$1');
 
 // Video
 $routes->get('/video', 'Video::index');
+$routes->get('/video/datatable', 'Video::dataTable');
 $routes->post('/video/upload', 'Video::upload');
 $routes->get('/video/stream/(:any)', 'Video::stream/$1');
 $routes->get('/video/hls/(:num)/(:any)', 'Video::hls/$1/$2');
@@ -23,6 +24,7 @@ $routes->get('/video/delete/(:num)', 'Video::delete/$1');
 
 //playlist
 $routes->get('/playlist', 'Playlist::index');
+$routes->get('/playlist/datatable', 'Playlist::dataTable');
 $routes->get('/playlist/create', 'Playlist::create');
 $routes->post('/playlist/store', 'Playlist::store');
 $routes->get('/playlist/delete/(:num)', 'Playlist::delete/$1');

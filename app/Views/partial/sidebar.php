@@ -1,50 +1,66 @@
-<!-- Sidebar -->
-<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+<?php
+$segment = service('uri')->getSegment(1);
+$creatorActive = in_array($segment, ['playlist', 'video'], true);
+?>
+<div class="offcanvas-header d-lg-none">
+    <span class="fs-5 fw-semibold text-white" id="adminSidebarLabel">Menu Admin</span>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar"
+        aria-label="Tutup"></button>
+</div>
 
-    <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('dashboard') ?>">
-        <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-        </div>
-        <div class="sidebar-brand-text mx-3">XProject <sup>1.0</sup></div>
+<div class="offcanvas-body sidebar-inner p-3">
+    <!-- Brand -->
+    <a class="sidebar-brand d-flex align-items-center mb-3" href="<?= base_url('dashboard') ?>">
+        <i class="bi bi-play-btn-fill fs-3 me-2"></i>
+        <span class="fs-5 fw-semibold">XProject <small class="text-white-50 fs-6">1.0</small></span>
     </a>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider my-0">
+    <hr class="mt-0">
 
-    <!-- Nav Item - Dashboard -->
-    <li class="nav-item active">
-        <a class="nav-link" href="<?= base_url('dashboard') ?>">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
-    </li>
+    <!-- Navigation -->
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a class="nav-link <?= $segment === 'dashboard' ? 'active' : '' ?>"
+                href="<?= base_url('dashboard') ?>">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+        </li>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Creator
-    </div>
-    <!-- Nav Item - Bank Soal -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBSCluster"
-            aria-expanded="true" aria-controls="collapseTwo">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Playlist</span>
-        </a>
-        <div id="collapseBSCluster" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Pilihan:</h6>
-                <a class="collapse-item" href="<?= base_url('playlist') ?>">Playlist</a>
-                <a class="collapse-item" href="<?= base_url('video') ?>">Video</a>
+        <li class="mt-3">
+            <div class="sidebar-heading">Creator</div>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link <?= $creatorActive ? 'active' : '' ?>" href="#creatorMenu" data-bs-toggle="collapse"
+                role="button" aria-expanded="<?= $creatorActive ? 'true' : 'false' ?>" aria-controls="creatorMenu">
+                <i class="bi bi-collection-play me-2"></i>Konten
+                <i class="bi bi-chevron-down ms-auto small"></i>
+            </a>
+            <div class="collapse <?= $creatorActive ? 'show' : '' ?>" id="creatorMenu">
+                <ul class="nav flex-column sidebar-submenu ms-3 mt-1">
+                    <li>
+                        <a class="nav-link <?= $segment === 'playlist' ? 'active' : '' ?>"
+                            href="<?= base_url('playlist') ?>">
+                            <i class="bi bi-music-note-list me-2"></i>Playlist
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link <?= $segment === 'video' ? 'active' : '' ?>"
+                            href="<?= base_url('video') ?>">
+                            <i class="bi bi-camera-video me-2"></i>Video
+                        </a>
+                    </li>
+                </ul>
             </div>
-        </div>
-    </li>
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
-    <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
-</ul>
-<!-- End of Sidebar -->
+        </li>
+
+        <li class="nav-item mt-1">
+            <a class="nav-link" href="<?= base_url('stream') ?>" target="_blank" rel="noopener">
+                <i class="bi bi-broadcast me-2"></i>Halaman Stream
+            </a>
+        </li>
+    </ul>
+
+    <hr>
+    <div class="small text-white-50 px-2">Admin Panel &copy; XProject</div>
+</div>

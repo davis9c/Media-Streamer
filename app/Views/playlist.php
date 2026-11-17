@@ -1,19 +1,30 @@
 <?= $this->extend('layout/dashboard') ?>
 <?= $this->section('content') ?>
 
-<div class="container-fluid">
-
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Playlist</h1>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Playlist</h1>
+        <p class="text-body-secondary mb-0">Kelola playlist dan urutan video.</p>
     </div>
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success'); ?></div>
-    <?php endif; ?>
-    <div class="row">
+</div>
 
-        <?= $this->include('playlist/list') ?>
-        <?= $this->include('playlist/form') ?>
+<?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?= esc(session()->getFlashdata('success')) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
     </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?= esc(session()->getFlashdata('error')) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+<?php endif; ?>
+
+<div class="row g-4">
+    <?= $this->include('playlist/list') ?>
+    <?= $this->include('playlist/form') ?>
 </div>
 
 <?= $this->endSection() ?>
