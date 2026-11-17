@@ -3,6 +3,8 @@
 # =========================
 .env
 .env.*
+!.env.docker.example
+!.env.example
 
 # =========================
 # CodeIgniter Writable
@@ -30,3 +32,9 @@
 Thumbs.db
 .vscode/
 .idea/
+
+# =========================
+# PHPUnit / build artifacts
+# =========================
+/build/
+.phpunit.cache/

@@ -7,6 +7,7 @@ use CodeIgniter\Model;
 class DaftarPlayModel extends Model
 {
     protected $table = 'daftar_play';
-    protected $allowedFields = ['playlist_id', 'video_id'];
+    protected $allowedFields = ['playlist_id', 'video_id', 'position'];
     protected $returnType = 'array';
+    protected $useTimestamps = false;
 }

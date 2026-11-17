@@ -18,7 +18,7 @@
                     const source = document.getElementById('source');
                     const player = document.getElementById('player');
 
-                    source.src = '/video/stream/' + filename;
+                    source.src = <?= json_encode(base_url('video/stream/')) ?> + filename;
                     player.load();
                     player.play();
                 }
@@ -39,7 +39,7 @@
                 <p style="color:red"><?= session()->getFlashdata('error') ?></p>
             <?php endif; ?>
 
-            <form action="/video/upload" method="post" enctype="multipart/form-data">
+            <form action="<?= base_url('video/upload') ?>" method="post" enctype="multipart/form-data">
                 <input type="text" name="title" placeholder="Judul video" required>
                 <input type="file" name="video" accept="video/mp4" required>
                 <button type="submit">Upload</button>

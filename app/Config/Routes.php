@@ -17,6 +17,7 @@ $routes->get('/stream/(:any)', 'Stream::play/$1');
 $routes->get('/video', 'Video::index');
 $routes->post('/video/upload', 'Video::upload');
 $routes->get('/video/stream/(:any)', 'Video::stream/$1');
+$routes->get('/video/hls/(:num)/(:any)', 'Video::hls/$1/$2');
 $routes->get('/video/delete/(:num)', 'Video::delete/$1');
 
 

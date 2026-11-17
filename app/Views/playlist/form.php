@@ -16,7 +16,7 @@
                 <p style="color:red"><?= session()->getFlashdata('error') ?></p>
             <?php endif; ?>
 
-            <form action="/playlist/store" method="post">
+            <form action="<?= base_url('playlist/store') ?>" method="post">
 
                 <label>Nama Playlist</label><br>
                 <input type="text" name="playlistname" required>

@@ -13,7 +13,8 @@ Aplikasi **media streaming & video wall** berbasis **CodeIgniter 4** yang menduk
 ## ✨ Fitur Utama
 
 * 📂 Manajemen Playlist
-* 🎞️ Video streaming (MP4 / HLS-ready)
+* 🎞️ Video streaming (MP4 / HLS)
+* 🔁 Konversi otomatis MP4 → HLS (m3u8 + segmen) via ffmpeg, dengan fallback MP4
 * 🔢 Urutan video berdasarkan database
 * 🖥️ Auto layout grid responsif
 * 🔊 Kontrol audio berbasis interaksi user (browser-safe)
@@ -51,9 +52,9 @@ composer install
 Salin file contoh:
 
 ```bash
-cp env .env
+cp env.example .env
 ```
-a
+
 Atur database di `.env`:
 
 ```env
@@ -83,10 +84,16 @@ php spark migrate:refresh
 Pastikan folder berikut **writeable**:
 
 ```
-writable/
-public/uploads/
-public/videos/
-public/hls/
+writable/cache
+writable/logs
+writable/session
+writable/uploads
+writable/hls
+```
+
+```bash
+mkdir -p writable/{cache,logs,session,uploads,hls}
+chmod -R 775 writable
 ```
 
 ---
@@ -120,6 +127,7 @@ ORDER BY daftar_play.position ASC
 ## ⚠️ Catatan Penting
 
 * Folder **video & upload TIDAK di-push ke GitHub**
+* Konversi HLS membutuhkan **ffmpeg** (`ffmpeg -version`). Jika tidak tersedia, video tetap diputar sebagai MP4.
 * Audio **tidak bisa autoplay tanpa interaksi user** (aturan browser)
 * Gunakan klik / sentuhan pertama untuk aktivasi audio
 
@@ -144,7 +152,73 @@ MIT License
 
 Pull Request & Issue sangat diterima 🙌
 Silakan fork repository ini dan buat perubahan yang Anda inginkan.
+## 🐳 Menjalankan dengan Docker
+
+Docker image sudah menyertakan **PHP 8.2 + Apache**, ekstensi yang dibutuhkan, dan **ffmpeg** untuk konversi HLS. Database **tidak** dijalankan di container (memakai database eksternal).
+
+### 1. Siapkan environment
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+Sesuaikan minimal:
+
+```env
+APP_PORT=8080
+APP_BASE_URL=http://localhost:8080/
+DB_HOST=host.docker.internal
+DB_DATABASE=streaming_db
+DB_USERNAME=streamer
+DB_PASSWORD=ubah_saya
+```
+
+`host.docker.internal` mengarah ke host mesin Docker (disediakan melalui `extra_hosts: host-gateway`). Jika database ada di server lain, ganti `DB_HOST` dengan IP/hostname server tersebut.
+
+### 2. Jalankan (production-like)
+
+```bash
+docker compose --env-file .env.docker up -d --build
+```
+
+Buka `http://localhost:8080`.
+
+### 3. Jalankan mode development (bind-mount + auto migrate)
+
+```bash
+docker compose --env-file .env.docker \
+  -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
+
+Perubahan pada `app/`, `public/`, `tests/`, dan `writable/` langsung terlihat tanpa rebuild.
+
+### 4. Perintah berguna
+
+```bash
+docker compose exec app php spark migrate
+docker compose exec app php spark routes
+docker compose exec app ffmpeg -version
+docker compose logs -f app
+docker compose down
+```
+
+Migrasi otomatis saat container start:
+
+```env
+RUN_MIGRATIONS=true
+```
+
+### Catatan Docker
+
+- Upload video dan hasil HLS disimpan di volume `media-streamer-writable` (`writable/uploads`, `writable/hls`).
+- Batas upload di container: **2 GB** (`upload_max_filesize` / `post_max_size`).
+- Database eksternal harus mengizinkan koneksi dari container (mis. user `'streamer'@'%'`) dan `bind-address` tidak hanya `127.0.0.1`.
+- Jika ffmpeg tidak tersedia, upload tetap berhasil dan video diputar sebagai MP4 (fallback).
+
+---
+
 ## Troubleshooting
+
 
 ### Masalah Umum dan Solusi
 

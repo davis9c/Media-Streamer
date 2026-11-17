@@ -9,7 +9,7 @@ class VideoModel extends Model
     protected $table = 'videos';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['title', 'filename', 'created_at'];
+    protected $allowedFields = ['title', 'filename', 'hls_path', 'created_at'];
 
     protected $returnType = 'array';
     protected $useTimestamps = true;

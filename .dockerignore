@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment & secret
+.env
+.env.*
+!.env.docker.example
+!env.example
+
+# Dependency yang di-install ulang di image
+vendor
+node_modules
+
+# Runtime data
+writable/*
+!writable/.htaccess
+!writable/index.html
+
+# Dokumentasi / tooling lokal
+README.md
+tests
+builds
+docker-compose*.yml

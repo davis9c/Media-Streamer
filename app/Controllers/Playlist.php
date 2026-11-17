@@ -22,7 +22,7 @@ class Playlist extends BaseController
     public function index()
     {
         return view('playlist', [
-            'playlists' => $this->playlistModel->findAll(),
+            'playlists' => $this->playlistModel->orderBy('id', 'DESC')->findAll(),
             'videos'    => $this->videoModel->findAll(),
         ]);
     }
@@ -30,18 +30,40 @@ class Playlist extends BaseController
     public function create()
     {
         return view('playlist', [
-            'videos' => $this->videoModel->findAll()
+            'playlists' => $this->playlistModel->findAll(),
+            'videos'    => $this->videoModel->findAll(),
         ]);
     }
 
     public function store()
     {
-        $playlistName = $this->request->getPost('playlistname');
+        $playlistName = trim((string) $this->request->getPost('playlistname'));
         $videosOrder  = $this->request->getPost('videos_order');
 
-        if (!$playlistName || !$videosOrder) {
+        if ($playlistName === '' || ! $videosOrder) {
             return redirect()->back()
                 ->with('error', 'Playlist dan video wajib diisi');
+        }
+
+        $videoIds = array_values(array_unique(array_filter(
+            array_map('intval', explode(',', (string) $videosOrder)),
+            static fn (int $id): bool => $id > 0
+        )));
+
+        if ($videoIds === []) {
+            return redirect()->back()
+                ->with('error', 'Pilih minimal satu video');
+        }
+
+        // Pastikan semua video benar-benar ada.
+        $existingIds = array_column(
+            $this->videoModel->whereIn('id', $videoIds)->findAll(),
+            'id'
+        );
+
+        if (count($existingIds) !== count($videoIds)) {
+            return redirect()->back()
+                ->with('error', 'Ada video yang tidak ditemukan');
         }
 
         $db = \Config\Database::connect();
@@ -52,9 +74,12 @@ class Playlist extends BaseController
             'playlistname' => $playlistName
         ], true);
 
+        if (! $playlistId) {
+            $db->transRollback();
 
-
-        $videoIds = explode(',', $videosOrder);
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan playlist');
+        }
 
         foreach ($videoIds as $position => $videoId) {
             $this->daftarPlayModel->insert([
@@ -66,7 +91,12 @@ class Playlist extends BaseController
 
         $db->transComplete();
 
-        return redirect()->to('/playlist')
+        if (! $db->transStatus()) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan urutan playlist');
+        }
+
+        return redirect()->to(base_url('playlist'))
             ->with('success', 'Playlist berhasil dibuat');
     }
 

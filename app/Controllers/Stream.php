@@ -42,9 +42,10 @@ class Stream extends BaseController
             ->select('videos.*, daftar_play.position')
             ->join('videos', 'videos.id = daftar_play.video_id')
             ->where('daftar_play.playlist_id', $id)
-            ->orderBy('daftar_play.id', 'ASC')
+            ->orderBy('daftar_play.position', 'ASC')
             ->findAll();
 
+        $videos = array_map([$this, 'withHlsUrl'], $videos);
 
         return view('stream/play3', [
             'playlist' => $playlist,
@@ -99,10 +100,26 @@ class Stream extends BaseController
             ->orderBy('daftar_play.position', 'ASC')
             ->findAll();
 
+        $videos = array_map([$this, 'withHlsUrl'], $videos);
+
         return $this->response->setJSON([
             'status'   => true,
             'playlist' => $playlist,
-            'videos'  => $videos
+            'videos'   => $videos
         ]);
+    }
+
+    /**
+     * Tambahkan URL HLS absolut bila tersedia.
+     */
+    protected function withHlsUrl(array $video): array
+    {
+        $video['hls_url'] = null;
+
+        if (! empty($video['hls_path'])) {
+            $video['hls_url'] = base_url('video/hls/' . $video['id'] . '/index.m3u8');
+        }
+
+        return $video;
     }
 }
